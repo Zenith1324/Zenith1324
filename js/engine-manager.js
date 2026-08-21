@@ -16,12 +16,12 @@ const STOCKFISH_URL = 'vendor/stockfish/stockfish-18-lite-single.js';
 // depth: глубина для встроенного запасного движка
 // blunder: вероятность намеренно случайного хода (только для самых слабых)
 const LEVELS = {
-  novice:   { name: 'Новичок',        rating: 800,  skill: 0,  elo: null, movetime: 50,   depth: 1, blunder: 0.30 },
+  novice:   { name: 'Новичокъ',        rating: 800,  skill: 0,  elo: null, movetime: 50,   depth: 1, blunder: 0.30 },
   amateur:  { name: 'Любитель',       rating: 1200, skill: 2,  elo: null, movetime: 100,  depth: 2, blunder: 0.12 },
-  club:     { name: 'Клубный игрок',  rating: 1600, skill: 6,  elo: 1600, movetime: 200,  depth: 4, blunder: 0.03 },
-  candidate:{ name: 'Кандидат в мастера', rating: 1900, skill: 11, elo: 1900, movetime: 350, depth: 5, blunder: 0 },
-  master:   { name: 'Гроссмейстер',   rating: 2400, skill: 17, elo: 2400, movetime: 800,  depth: 6, blunder: 0 },
-  champion: { name: 'Чемпион мира',   rating: 2850, skill: 20, elo: null, movetime: 2000, depth: 7, blunder: 0 },
+  club:     { name: 'Клубный игрокъ',  rating: 1600, skill: 6,  elo: 1600, movetime: 200,  depth: 4, blunder: 0.03 },
+  candidate:{ name: 'Кандидатъ въ мастера', rating: 1900, skill: 11, elo: 1900, movetime: 350, depth: 5, blunder: 0 },
+  master:   { name: 'Гроссмейстеръ',   rating: 2400, skill: 17, elo: 2400, movetime: 800,  depth: 6, blunder: 0 },
+  champion: { name: 'Чемпіонъ міра',   rating: 2850, skill: 20, elo: null, movetime: 2000, depth: 7, blunder: 0 },
 };
 
 const ANALYSIS_DEPTH = 14;

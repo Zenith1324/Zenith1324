@@ -5,14 +5,14 @@
  */
 
 const TIME_CONTROLS = [
-  { key: 'none', label: 'Без часов', base: null, inc: 0 },
+  { key: 'none', label: 'Безъ часовъ', base: null, inc: 0 },
   { key: '1+0',  label: '1+0',  base: 60,   inc: 0, kind: 'Пуля' },
-  { key: '3+0',  label: '3+0',  base: 180,  inc: 0, kind: 'Блиц' },
-  { key: '3+2',  label: '3+2',  base: 180,  inc: 2, kind: 'Блиц' },
-  { key: '5+0',  label: '5+0',  base: 300,  inc: 0, kind: 'Блиц' },
-  { key: '5+3',  label: '5+3',  base: 300,  inc: 3, kind: 'Блиц' },
-  { key: '10+0', label: '10+0', base: 600,  inc: 0, kind: 'Рапид' },
-  { key: '10+5', label: '10+5', base: 600,  inc: 5, kind: 'Рапид' },
+  { key: '3+0',  label: '3+0',  base: 180,  inc: 0, kind: 'Блицъ' },
+  { key: '3+2',  label: '3+2',  base: 180,  inc: 2, kind: 'Блицъ' },
+  { key: '5+0',  label: '5+0',  base: 300,  inc: 0, kind: 'Блицъ' },
+  { key: '5+3',  label: '5+3',  base: 300,  inc: 3, kind: 'Блицъ' },
+  { key: '10+0', label: '10+0', base: 600,  inc: 0, kind: 'Рапидъ' },
+  { key: '10+5', label: '10+5', base: 600,  inc: 5, kind: 'Рапидъ' },
 ];
 
 function getTimeControl(key) {

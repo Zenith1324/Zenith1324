@@ -116,8 +116,8 @@ body::before {
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(340px, 1fr) minmax(320px, 400px);
-  gap: 26px; align-items: start; justify-content: center;
+  grid-template-columns: minmax(340px, 1fr) minmax(300px, 370px);
+  gap: 20px; align-items: start; justify-content: center;
 }
 @media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } }
 
@@ -132,9 +132,9 @@ body::before {
 /* Доска всегда должна помѣщаться на экранѣ цѣликомъ: ширина ограничена
    и высотой окна за вычетомъ полосъ игроковъ, статуса и подписей. */
 .board-column {
-  display: flex; flex-direction: column; gap: 10px; min-width: 0;
+  display: flex; flex-direction: column; gap: 7px; min-width: 0;
   width: 100%;
-  max-width: min(640px, calc(100vh - 300px));
+  max-width: min(860px, calc(100vh - 205px));
   margin: 0 auto;
 }
 
@@ -142,7 +142,7 @@ body::before {
 
 .player-strip {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 8px 14px; border-radius: 4px;
+  padding: 5px 12px; border-radius: 4px;
   background: linear-gradient(180deg, rgba(36,26,18,.94), rgba(20,14,9,.94));
   border: 1px solid rgba(212,162,76,.42);
   box-shadow: var(--shadow-mid);
@@ -160,8 +160,8 @@ body::before {
 .captured-row .mini-piece { width: 19px; height: 19px; opacity: .92; }
 
 .clock {
-  font-family: var(--font-display); font-size: clamp(1.3rem, 3.2vw, 1.95rem);
-  padding: 3px 16px; border-radius: 3px; letter-spacing: .05em;
+  font-family: var(--font-display); font-size: clamp(1.2rem, 2.8vw, 1.7rem);
+  padding: 1px 14px; border-radius: 3px; letter-spacing: .05em;
   background: linear-gradient(180deg, #0d0906, #1c1309);
   border: 1px solid rgba(212,162,76,.5); color: var(--cream);
   min-width: 108px; text-align: center; flex: none;
@@ -193,7 +193,7 @@ body::before {
 }
 
 .board-frame {
-  position: relative; display: flex; flex-direction: column; gap: 4px; padding: 14px;
+  position: relative; display: flex; flex-direction: column; gap: 4px; padding: 10px;
   border-radius: 5px; flex: 1; min-width: 0;
   background: linear-gradient(150deg, #2a1c11, #150e08 60%, #241608);
   border: 3px solid transparent;
@@ -304,7 +304,7 @@ body::before {
 /* ======================= СТАТУС И ПОДПИСИ ======================= */
 
 .status-bar {
-  text-align: center; padding: 9px 14px; border-radius: 3px;
+  text-align: center; padding: 6px 14px; border-radius: 3px;
   background: linear-gradient(180deg, rgba(36,26,18,.94), rgba(18,12,8,.94));
   border: 1px solid rgba(212,162,76,.42); color: var(--gold-bright);
   font-size: 1.02rem; letter-spacing: .03em;
@@ -614,3 +614,24 @@ body::before {
   .eval-bar { width: 18px; }
   .section { padding: 12px 13px; }
 }
+
+/* =============== Полотна Шишкина на заднемъ планѣ =============== */
+
+/* Когда загрузилось настоящее полотно, фонъ ставитъ JS (Gallery.apply). */
+body.has-painting {
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+/* Съ живописью узорная вуаль мѣшаетъ — приглушаемъ её */
+body.has-painting::before { opacity: .22; }
+
+.painting-credit {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; flex-wrap: wrap; font-style: italic;
+}
+.link-btn.inline { padding: 0; font-size: .78rem; }
+.link-btn.inline.hidden { display: none; }
+
+.music-src { font-size: .72rem; color: #6b5a44; margin: 4px 0 0; line-height: 1.45; }

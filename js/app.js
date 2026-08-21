@@ -354,7 +354,7 @@
     renderAll();
 
     const status = ChessEngine.getGameStatus(state);
-    if (status.inCheck && !status.over) ScriabinMusic.play('check');
+    if (status.inCheck && !status.over) Maestro.play('check');
 
     if (status.over) { finishGame(status); return; }
 
@@ -423,8 +423,8 @@
     calloutEl.classList.add('show');
     clearTimeout(announce._t);
     announce._t = setTimeout(() => calloutEl.classList.remove('show'), 2600);
-    if (result.tag === 'brilliant') ScriabinMusic.play('brilliant');
-    else if (result.tag === 'blunder') ScriabinMusic.play('blunder');
+    if (result.tag === 'brilliant') Maestro.play('brilliant');
+    else if (result.tag === 'blunder') Maestro.play('blunder');
   }
 
   // ============================ РАЗБОРЪ ВСЕЙ ПАРТІИ ============================
@@ -745,8 +745,8 @@
     }
 
     const musicKey = humanScore === 1 ? 'victory' : humanScore === 0 ? 'defeat' : 'draw';
-    const pieceName = ScriabinMusic.play(musicKey);
-    $('over-music').textContent = pieceName ? '♪ ' + pieceName : '';
+    const pieceName = Maestro.play(musicKey);
+    $('over-music').textContent = pieceName ? '♪ ' + pieceName + ' (' + Maestro.sourceLabel() + ')' : '';
     $('music-now').textContent = pieceName ? '♪ ' + pieceName : '';
 
     setStatus(title + ' · ' + subtitle);
@@ -785,7 +785,7 @@
     $('game-over-modal').classList.add('hidden');
     calloutEl.classList.remove('show');
     $('analyse-hint').textContent = 'Движокъ оцѣнитъ каждый ходъ и укажетъ лучшій.';
-    ScriabinMusic.stop();
+    Maestro.stop();
     $('music-now').textContent = '';
 
     renderAll();
@@ -953,8 +953,8 @@
 
   // --- Музыка ---
   $('btn-music').onclick = () => {
-    const on = !ScriabinMusic.isEnabled();
-    ScriabinMusic.setEnabled(on);
+    const on = !Maestro.isEnabled();
+    Maestro.setEnabled(on);
     $('btn-music').textContent = on ? '♪ Музыка: вкл.' : '♪ Музыка: выкл.';
   };
   let soundOn = true;
@@ -964,7 +964,7 @@
   };
   const origMoveSound = ScriabinMusic.moveSound;
   ScriabinMusic.moveSound = function (cap) { if (soundOn) origMoveSound(cap); };
-  $('volume').oninput = (e) => ScriabinMusic.setVolume(e.target.value / 100);
+  $('volume').oninput = (e) => Maestro.setVolume(e.target.value / 100);
   document.addEventListener('pointerdown', () => ScriabinMusic.unlock(), { once: true });
 
   // --- Сеть ---
@@ -974,25 +974,25 @@
     try {
       const code = await Multiplayer.createInvite(colorChoice);
       $('invite-code').value = code;
-      setNetStatus('Приглашеніе готово. Отправьте код сопернику и ждите код отвѣта.', 'wait');
+      setNetStatus('Приглашеніе готово. Отправьте кодъ сопернику и ждите код отвѣта.', 'wait');
     } catch (e) { setNetStatus('Не удалось создать приглашеніе: ' + e.message, 'err'); }
   };
   $('btn-accept-answer').onclick = async () => {
     const code = $('answer-in').value.trim();
-    if (!code) { setNetStatus('Вставьте код отвѣта.', 'err'); return; }
+    if (!code) { setNetStatus('Вставьте кодъ отвѣта.', 'err'); return; }
     setNetStatus('Устанавливаемъ соединеніе…', 'wait');
     try { await Multiplayer.completeInvite(code); }
-    catch (e) { setNetStatus('Неверный код отвѣта: ' + e.message, 'err'); }
+    catch (e) { setNetStatus('Невѣрный кодъ отвѣта: ' + e.message, 'err'); }
   };
   $('btn-join').onclick = async () => {
     const code = $('invite-in').value.trim();
-    if (!code) { setNetStatus('Вставьте код приглашенія.', 'err'); return; }
+    if (!code) { setNetStatus('Вставьте кодъ приглашенія.', 'err'); return; }
     setNetStatus('Входимъ въ партію…', 'wait');
     try {
       const res = await Multiplayer.acceptInvite(code);
       $('answer-code').value = res.code;
-      setNetStatus('Код отвѣта готовъ. Отправьте его хозяину партіи.', 'wait');
-    } catch (e) { setNetStatus('Неверный код приглашенія: ' + e.message, 'err'); }
+      setNetStatus('Кодъ отвѣта готовъ. Отправьте его хозяину партіи.', 'wait');
+    } catch (e) { setNetStatus('Невѣрный кодъ приглашенія: ' + e.message, 'err'); }
   };
   $('btn-copy-invite').onclick = () => copyToClipboard($('invite-code').value, 'приглашенія');
   $('btn-copy-answer').onclick = () => copyToClipboard($('answer-code').value, 'отвѣта');
@@ -1003,8 +1003,8 @@
   };
 
   function copyToClipboard(text, what) {
-    if (!text) { setNetStatus(`Код ${what} ещё не созданъ.`, 'err'); return; }
-    const done = () => setNetStatus(`Код ${what} скопированъ.`, 'ok');
+    if (!text) { setNetStatus(`Кодъ ${what} ещё не созданъ.`, 'err'); return; }
+    const done = () => setNetStatus(`Кодъ ${what} скопированъ.`, 'ok');
     if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, fallback);
     else fallback();
     function fallback() {
@@ -1017,11 +1017,37 @@
 
   // ============================ ЗАПУСКЪ ============================
 
+  // ---------- Полотна Шишкина на заднемъ планѣ ----------
+
+  function describePainting(item) {
+    const cap = $('painting-caption');
+    if (!item || item.fallback) {
+      cap.textContent = 'Задній планъ: рисованный пейзажъ (нѣтъ связи съ Викискладомъ)';
+      $('btn-next-painting').classList.add('hidden');
+      return;
+    }
+    const name = (item.title || '').replace(/_/g, ' ');
+    cap.textContent = `И. И. Шишкинъ — «${name}»${item.date ? ', ' + item.date : ''}`;
+    $('btn-next-painting').classList.remove('hidden');
+  }
+
+  $('btn-next-painting').onclick = () => Gallery.next();
+
   async function boot() {
     buildLevelButtons();
     buildTimeButtons();
     renderRating();
     newGame();
+
+    // Полотна и фонотека грузятся въ фонѣ и не задерживаютъ игру
+    Gallery.init(describePainting).catch(() => {});
+    Maestro.init().then(() => {
+      const src = Maestro.sourceLabel();
+      $('music-src').textContent = 'Источникъ звука: ' + src +
+        (Maestro.getSource() === 'synth'
+          ? ' — чтобы играли настоящія записи, запустите «МУЗЫКА.command»'
+          : '');
+    }).catch(() => {});
 
     const backend = await EngineManager.init();
     if (backend === 'stockfish') {

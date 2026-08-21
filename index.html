@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Русскiя Шахматы</title>
+<title>Русскія Шахматы</title>
 <meta name="description" content="Шахматы в русском императорском стиле: игра против движка Stockfish, разбор партии, часы, игра по сети и музыка Скрябина." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,8 +20,8 @@
       <svg class="eagle" viewBox="0 0 200 200" aria-hidden="true"><use href="#imperial-eagle"></use></svg>
       <div class="title-block">
         <p class="kicker">Игра царей и государей</p>
-        <h1 class="title">Русскiя Шахматы</h1>
-        <p class="subtitle">Противъ machины · Разборъ партiи · Музыка А. Н. Скрябина</p>
+        <h1 class="title">Русскія Шахматы</h1>
+        <p class="subtitle">Противъ машины · Разборъ партіи · Музыка А. Н. Скрябина</p>
       </div>
       <svg class="eagle" viewBox="0 0 200 200" aria-hidden="true"><use href="#imperial-eagle"></use></svg>
     </div>
@@ -68,7 +68,7 @@
       <div class="player-strip" id="strip-bottom">
         <div class="player-info">
           <span class="player-badge" id="badge-bottom">◇</span>
-          <span class="player-name" id="name-bottom">Белые</span>
+          <span class="player-name" id="name-bottom">Бѣлые</span>
           <span class="captured-row" id="captured-bottom"></span>
           <span class="material-diff" id="material-bottom"></span>
         </div>
@@ -150,6 +150,7 @@
             <input type="range" id="volume" min="0" max="100" value="50">
           </label>
           <p class="music-now" id="music-now"></p>
+          <p class="music-src" id="music-src"></p>
         </div>
       </div>
 
@@ -199,13 +200,13 @@
           <div class="btn-row">
             <button id="btn-create-invite" class="btn btn-gold">Создать партію</button>
           </div>
-          <label class="net-label">Код приглашенія — отправьте сопернику:</label>
+          <label class="net-label">Кодъ приглашенія — отправьте сопернику:</label>
           <textarea id="invite-code" class="code-box" readonly placeholder="нажмите «Создать партію»"></textarea>
           <div class="btn-row">
             <button id="btn-copy-invite" class="btn btn-small">Скопировать</button>
           </div>
-          <label class="net-label">Код отвѣта отъ соперника — вставьте сюда:</label>
-          <textarea id="answer-in" class="code-box" placeholder="вставьте код отвѣта"></textarea>
+          <label class="net-label">Кодъ отвѣта отъ соперника — вставьте сюда:</label>
+          <textarea id="answer-in" class="code-box" placeholder="вставьте кодъ отвѣта"></textarea>
           <div class="btn-row">
             <button id="btn-accept-answer" class="btn btn-small">Завершить соединеніе</button>
           </div>
@@ -213,8 +214,8 @@
 
         <div class="section">
           <h2>Присоединиться</h2>
-          <label class="net-label">Код приглашенія отъ хозяина:</label>
-          <textarea id="invite-in" class="code-box" placeholder="вставьте код приглашенія"></textarea>
+          <label class="net-label">Кодъ приглашенія отъ хозяина:</label>
+          <textarea id="invite-in" class="code-box" placeholder="вставьте кодъ приглашенія"></textarea>
           <div class="btn-row">
             <button id="btn-join" class="btn btn-gold">Войти въ партію</button>
           </div>
@@ -246,6 +247,10 @@
   </main>
 
   <footer class="footer">
+    <p class="painting-credit">
+      <span id="painting-caption">Задній планъ: рисованный пейзажъ</span>
+      <button id="btn-next-painting" class="link-btn inline">другое полотно →</button>
+    </p>
     <p>Хохлома · Гжель · Палехъ · Съ почтеніемъ къ русской школѣ шахматъ</p>
     <p class="footer-small">Движокъ Stockfish 18 (GPLv3) · Музыка А. Н. Скрябина (общественное достояніе)</p>
   </footer>
@@ -416,6 +421,8 @@
 <script src="js/rating.js"></script>
 <script src="js/clock.js"></script>
 <script src="js/music.js"></script>
+<script src="js/audio-library.js"></script>
+<script src="js/gallery.js"></script>
 <script src="js/multiplayer.js"></script>
 <script src="js/app.js"></script>
 </body>

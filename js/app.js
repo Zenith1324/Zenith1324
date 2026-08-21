@@ -25,8 +25,18 @@
   const gameOverModal = document.getElementById('game-over-modal');
   const gameOverTitleEl = document.getElementById('game-over-title');
   const gameOverSubtitleEl = document.getElementById('game-over-subtitle');
+  const gameOverRatingEl = document.getElementById('game-over-rating');
   const gameOverCloseBtn = document.getElementById('game-over-close');
   const thinkingIndicatorEl = document.getElementById('thinking-indicator');
+  const moveCalloutEl = document.getElementById('move-callout');
+
+  const ratingValueEl = document.getElementById('rating-value');
+  const ratingRankEl = document.getElementById('rating-rank');
+  const ratingRecordEl = document.getElementById('rating-record');
+  const ratingResetBtn = document.getElementById('rating-reset-btn');
+
+  const accuracyWhiteEl = document.getElementById('accuracy-white');
+  const accuracyBlackEl = document.getElementById('accuracy-black');
 
   let gameState = ChessEngine.createInitialState();
   let stateHistory = [ChessEngine.cloneState(gameState)];
@@ -40,6 +50,14 @@
   let soundOn = true;
   let capturedByWhite = [];
   let capturedByBlack = [];
+
+  let ratingState = ChessRating.loadRatingState();
+  let gameRatingApplied = false;
+
+  // Per-move analysis (chess.com-style classification), index-aligned with sanHistory.
+  let moveAnalyses = [];
+  let gameGeneration = 0;
+  let calloutTimer = null;
 
   // ---------- Sound ----------
   let audioCtx = null;
@@ -268,6 +286,7 @@
   }
 
   function commitMove(move) {
+    const stateBeforeMove = gameState;
     const legalMovesAtTime = ChessEngine.generateLegalMoves(gameState, gameState.turn);
     const stateAfter = ChessEngine.applyMove(gameState, move);
     const san = toSAN(gameState, move, legalMovesAtTime, stateAfter);
@@ -280,6 +299,8 @@
     gameState = stateAfter;
     stateHistory.push(ChessEngine.cloneState(gameState));
     sanHistory.push(san);
+    moveAnalyses.push(null);
+    const moveIndex = sanHistory.length - 1;
     selectedSquare = null;
     legalMovesForSelected = [];
 
@@ -288,6 +309,7 @@
     renderMoveList();
     renderCaptured();
     updateStatusBar();
+    analyzeAndRecordMove(stateBeforeMove, move, moveIndex);
 
     const status = ChessEngine.getGameStatus(gameState);
     if (status.over) {
@@ -298,6 +320,59 @@
     if (gameState.turn !== humanColor) {
       scheduleAiMove();
     }
+  }
+
+  // ---------- Move analysis (chess.com-style classification) ----------
+  function analyzeAndRecordMove(stateBeforeMove, move, moveIndex) {
+    const generationAtCall = gameGeneration;
+    setTimeout(() => {
+      if (generationAtCall !== gameGeneration) return; // game reset/undone since this was queued
+      if (moveIndex >= moveAnalyses.length) return; // history truncated
+      const result = ChessAnalysis.evaluateMove(stateBeforeMove, move);
+      moveAnalyses[moveIndex] = result;
+      renderMoveList();
+      renderAnalysisPanel();
+      maybeShowCallout(result, move.piece[0]);
+    }, 0);
+  }
+
+  function renderAnalysisPanel() {
+    const counts = {
+      w: { brilliant: 0, great: 0, best: 0, good: 0, inaccuracy: 0, mistake: 0, blunder: 0 },
+      b: { brilliant: 0, great: 0, best: 0, good: 0, inaccuracy: 0, mistake: 0, blunder: 0 },
+    };
+    const weightSum = { w: 0, b: 0 };
+    const weightCount = { w: 0, b: 0 };
+
+    moveAnalyses.forEach((result, i) => {
+      if (!result) return;
+      const color = i % 2 === 0 ? 'w' : 'b';
+      counts[color][result.tag] += 1;
+      weightSum[color] += ChessAnalysis.MOVE_TAGS[result.tag].weight;
+      weightCount[color] += 1;
+    });
+
+    ['w', 'b'].forEach((color) => {
+      Object.keys(counts[color]).forEach((tag) => {
+        const cell = document.getElementById(`cnt-${color}-${tag}`);
+        if (cell) cell.textContent = String(counts[color][tag]);
+      });
+    });
+
+    accuracyWhiteEl.textContent = weightCount.w ? `${Math.round(weightSum.w / weightCount.w)}%` : '—';
+    accuracyBlackEl.textContent = weightCount.b ? `${Math.round(weightSum.b / weightCount.b)}%` : '—';
+  }
+
+  function maybeShowCallout(result, color) {
+    if (!result || result.forced) return;
+    if (!['brilliant', 'great', 'blunder'].includes(result.tag)) return;
+    const info = ChessAnalysis.MOVE_TAGS[result.tag];
+    const who = color === 'w' ? 'Белые' : 'Чёрные';
+    const whoEn = color === 'w' ? 'White' : 'Black';
+    moveCalloutEl.textContent = `${info.icon} ${who}: ${info.ru}! · ${whoEn}: ${info.en}!`;
+    moveCalloutEl.className = `move-callout show tag-${result.tag}`;
+    clearTimeout(calloutTimer);
+    calloutTimer = setTimeout(() => moveCalloutEl.classList.remove('show'), 2200);
   }
 
   function scheduleAiMove() {
@@ -338,6 +413,15 @@
   }
 
   // ---------- Move list & captured pieces ----------
+  function tagBadgeHtml(index) {
+    const result = moveAnalyses[index];
+    if (index === undefined || sanHistory[index] === undefined) return '';
+    if (!result) return '<span class="move-tag tag-pending" title="Анализ… · Analyzing…">…</span>';
+    if (result.forced) return '';
+    const info = ChessAnalysis.MOVE_TAGS[result.tag];
+    return `<span class="move-tag tag-${result.tag}" title="${info.ru} · ${info.en}">${info.icon}</span>`;
+  }
+
   function renderMoveList() {
     moveListEl.innerHTML = '';
     for (let i = 0; i < sanHistory.length; i += 2) {
@@ -345,7 +429,9 @@
       const moveNum = i / 2 + 1;
       const whiteSan = sanHistory[i] || '';
       const blackSan = sanHistory[i + 1] || '';
-      li.innerHTML = `<span class="move-num">${moveNum}.</span> <span class="move-san">${whiteSan}</span> <span class="move-san">${blackSan}</span>`;
+      li.innerHTML = `<span class="move-num">${moveNum}.</span> ` +
+        `<span class="move-san">${whiteSan}${tagBadgeHtml(i)}</span> ` +
+        `<span class="move-san">${blackSan}${sanHistory[i + 1] !== undefined ? tagBadgeHtml(i + 1) : ''}</span>`;
       moveListEl.appendChild(li);
     }
     moveListEl.scrollTop = moveListEl.scrollHeight;
@@ -394,18 +480,62 @@
     playTone(160, 0.4, 'triangle');
     let title = 'Игра окончена';
     let subtitle = 'Game over';
+    let humanScore = 0.5;
     if (status.reason === 'checkmate') {
       const humanWon = (status.result === 'white_wins' && humanColor === 'w') ||
         (status.result === 'black_wins' && humanColor === 'b');
+      humanScore = humanWon ? 1 : 0;
       title = humanWon ? 'Победа! Мат сопернику' : 'Поражение — вам поставили мат';
       subtitle = humanWon ? 'Checkmate — you win!' : 'Checkmate — the computer wins';
     } else {
+      humanScore = 0.5;
       title = 'Ничья';
       subtitle = describeGameOver(status).split('·')[1] || 'Draw';
     }
     gameOverTitleEl.textContent = title;
     gameOverSubtitleEl.textContent = subtitle;
+    gameOverRatingEl.textContent = applyRatingChange(humanScore);
     gameOverModal.classList.remove('hidden');
+  }
+
+  // ---------- Rating (Elo) ----------
+  function applyRatingChange(humanScore) {
+    if (gameRatingApplied) return '';
+    gameRatingApplied = true;
+
+    const opponentElo = ChessRating.DIFFICULTY_ELO[difficultyKey];
+    const before = ratingState.rating;
+    const change = ChessRating.computeRatingChange(before, opponentElo, humanScore, ratingState.gamesPlayed);
+    const after = before + change;
+
+    ratingState.rating = after;
+    ratingState.gamesPlayed += 1;
+    if (humanScore === 1) ratingState.wins += 1;
+    else if (humanScore === 0) ratingState.losses += 1;
+    else ratingState.draws += 1;
+
+    ChessRating.saveRatingState(ratingState);
+    renderRatingPanel();
+
+    const sign = change > 0 ? '+' : '';
+    return `Рейтинг: ${before} → ${after} (${sign}${change}) · Rating vs ${opponentElo} Elo opponent`;
+  }
+
+  function renderRatingPanel() {
+    ratingValueEl.textContent = String(ratingState.rating);
+    const rank = ChessRating.getRankTitle(ratingState.rating);
+    ratingRankEl.textContent = rank.ru;
+    ratingRankEl.title = rank.en;
+    ratingRecordEl.textContent = `${ratingState.wins}В · ${ratingState.draws}Н · ${ratingState.losses}П`;
+    ratingRecordEl.title = `${ratingState.wins} wins · ${ratingState.draws} draws · ${ratingState.losses} losses`;
+  }
+
+  function resetRating() {
+    const proceed = window.confirm('Сбросить рейтинг до 1200 и очистить статистику? / Reset rating to 1200 and clear stats?');
+    if (!proceed) return;
+    ratingState = ChessRating.defaultRatingState();
+    ChessRating.saveRatingState(ratingState);
+    renderRatingPanel();
   }
 
   // ---------- Controls ----------
@@ -413,6 +543,9 @@
     gameState = ChessEngine.createInitialState();
     stateHistory = [ChessEngine.cloneState(gameState)];
     sanHistory = [];
+    moveAnalyses = [];
+    gameGeneration += 1;
+    gameRatingApplied = false;
     selectedSquare = null;
     legalMovesForSelected = [];
     capturedByWhite = [];
@@ -420,10 +553,12 @@
     aiThinking = false;
     thinkingIndicatorEl.classList.add('hidden');
     gameOverModal.classList.add('hidden');
+    moveCalloutEl.classList.remove('show');
     renderBoard();
     renderMoveList();
     renderCaptured();
     updateStatusBar();
+    renderAnalysisPanel();
     if (gameState.turn !== humanColor) {
       scheduleAiMove();
     }
@@ -439,15 +574,20 @@
         sanHistory.pop();
       }
     }
+    moveAnalyses.length = sanHistory.length;
+    gameGeneration += 1;
+    gameRatingApplied = false;
     gameState = ChessEngine.cloneState(stateHistory[stateHistory.length - 1]);
     recomputeCapturedFromHistory();
     selectedSquare = null;
     legalMovesForSelected = [];
     gameOverModal.classList.add('hidden');
+    moveCalloutEl.classList.remove('show');
     renderBoard();
     renderMoveList();
     renderCaptured();
     updateStatusBar();
+    renderAnalysisPanel();
   }
 
   function recomputeCapturedFromHistory() {
@@ -520,6 +660,7 @@
   colorToggleBtn.addEventListener('click', toggleColor);
   soundToggleBtn.addEventListener('click', toggleSound);
   gameOverCloseBtn.addEventListener('click', () => gameOverModal.classList.add('hidden'));
+  ratingResetBtn.addEventListener('click', resetRating);
 
   // ---------- Init ----------
   setDifficulty('amateur');
@@ -527,4 +668,6 @@
   renderMoveList();
   renderCaptured();
   updateStatusBar();
+  renderRatingPanel();
+  renderAnalysisPanel();
 })();

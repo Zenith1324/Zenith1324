@@ -45,17 +45,33 @@
       <div id="thinking-indicator" class="thinking-indicator hidden">
         <span class="thinking-dot"></span> Компьютер думает… · Computer is thinking…
       </div>
+      <div id="move-callout" class="move-callout"></div>
     </section>
 
     <aside class="panel">
 
+      <div class="panel-section rating-section">
+        <h2>Ваш рейтинг <span class="en">Your Rating</span></h2>
+        <div class="rating-display">
+          <div class="rating-badge">
+            <span id="rating-value" class="rating-value">1200</span>
+            <span class="rating-elo-label">Эло</span>
+          </div>
+          <div class="rating-meta">
+            <span id="rating-rank" class="rating-rank">I разряд</span>
+            <span id="rating-record" class="rating-record">0В · 0Н · 0П</span>
+          </div>
+        </div>
+        <button id="rating-reset-btn" class="rating-reset">Сбросить рейтинг · Reset</button>
+      </div>
+
       <div class="panel-section difficulty-section">
         <h2>Уровень сложности <span class="en">Difficulty</span></h2>
         <div class="difficulty-buttons" id="difficulty-buttons">
-          <button data-level="novice">Новичок <span class="en">Novice</span></button>
-          <button data-level="amateur" class="active">Любитель <span class="en">Amateur</span></button>
-          <button data-level="club">Клубный игрок <span class="en">Club</span></button>
-          <button data-level="master">Гроссмейстер <span class="en">Master</span></button>
+          <button data-level="novice">Новичок <span class="en">Novice</span><span class="elo-tag">800</span></button>
+          <button data-level="amateur" class="active">Любитель <span class="en">Amateur</span><span class="elo-tag">1200</span></button>
+          <button data-level="club">Клубный игрок <span class="en">Club</span><span class="elo-tag">1600</span></button>
+          <button data-level="master">Гроссмейстер <span class="en">Master</span><span class="elo-tag">2000</span></button>
         </div>
       </div>
 
@@ -74,6 +90,46 @@
       <div class="panel-section moves-section">
         <h2>Партия <span class="en">Moves</span></h2>
         <ol id="move-list" class="move-list"></ol>
+      </div>
+
+      <div class="panel-section analysis-section">
+        <h2>Анализ партии <span class="en">Game Review</span></h2>
+        <div class="analysis-accuracy">
+          <div class="accuracy-col">
+            <span class="accuracy-label">Белые · White</span>
+            <span id="accuracy-white" class="accuracy-value">—</span>
+          </div>
+          <div class="accuracy-col">
+            <span class="accuracy-label">Чёрные · Black</span>
+            <span id="accuracy-black" class="accuracy-value">—</span>
+          </div>
+        </div>
+        <table class="analysis-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th title="Блестящий · Brilliant">‼</th>
+              <th title="Отличный · Great">!</th>
+              <th title="Лучший · Best">★</th>
+              <th title="Хороший · Good">✓</th>
+              <th title="Неточность · Inaccuracy">?!</th>
+              <th title="Ошибка · Mistake">?</th>
+              <th title="Зевок · Blunder">??</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Б</td>
+              <td id="cnt-w-brilliant">0</td><td id="cnt-w-great">0</td><td id="cnt-w-best">0</td>
+              <td id="cnt-w-good">0</td><td id="cnt-w-inaccuracy">0</td><td id="cnt-w-mistake">0</td><td id="cnt-w-blunder">0</td>
+            </tr>
+            <tr>
+              <td>Ч</td>
+              <td id="cnt-b-brilliant">0</td><td id="cnt-b-great">0</td><td id="cnt-b-best">0</td>
+              <td id="cnt-b-good">0</td><td id="cnt-b-inaccuracy">0</td><td id="cnt-b-mistake">0</td><td id="cnt-b-blunder">0</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <div class="panel-section controls-section">
@@ -110,6 +166,7 @@
     <div class="modal-ornament" aria-hidden="true"></div>
     <h3 id="game-over-title">Игра окончена</h3>
     <p id="game-over-subtitle">Game over</p>
+    <p id="game-over-rating" class="game-over-rating"></p>
     <button id="game-over-close" class="control-btn primary">Закрыть · Close</button>
   </div>
 </div>
@@ -130,6 +187,8 @@
 
 <script src="js/chess-engine.js"></script>
 <script src="js/ai.js"></script>
+<script src="js/rating.js"></script>
+<script src="js/analysis.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

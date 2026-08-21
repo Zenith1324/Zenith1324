@@ -366,6 +366,7 @@ const ChessEngine = {
   applyMove,
   generateLegalMoves,
   isInCheck,
+  isSquareAttacked,
   getGameStatus,
   squareName,
   opponent,

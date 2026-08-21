@@ -160,6 +160,33 @@ const DIFFICULTIES = {
   master: { label: 'Гроссмейстер', depth: 4, blunderChance: 0, timeLimitMs: 2200 },
 };
 
+/**
+ * Full, unbiased evaluation of every legal move from the current position,
+ * used for post-move game analysis (independent of gameplay difficulty).
+ * Each move is searched with its own full alpha-beta window so the returned
+ * scores are directly comparable to each other (not just to find the best).
+ */
+function analyzePosition(state, depth) {
+  const color = state.turn;
+  const status = ChessEngine.getGameStatus(state);
+  if (status.over) return null;
+
+  const moves = orderMoves(status.legalMoves);
+  const scored = moves.map((move) => {
+    const next = ChessEngine.applyMove(state, move);
+    const score = -negamax(next, depth - 1, -Infinity, Infinity, ChessEngine.opponent(color), null);
+    return { move, score };
+  });
+  scored.sort((a, b) => b.score - a.score);
+
+  return {
+    scored,
+    bestMove: scored[0].move,
+    bestScore: scored[0].score,
+    secondBestScore: scored.length > 1 ? scored[1].score : scored[0].score,
+  };
+}
+
 function pickAiMove(state, difficultyKey) {
   const cfg = DIFFICULTIES[difficultyKey] || DIFFICULTIES.amateur;
   const status = ChessEngine.getGameStatus(state);
@@ -174,4 +201,4 @@ function pickAiMove(state, difficultyKey) {
   return result ? result.move : null;
 }
 
-const ChessAI = { pickAiMove, evaluateBoard, DIFFICULTIES };
+const ChessAI = { pickAiMove, analyzePosition, evaluateBoard, DIFFICULTIES, PIECE_VALUES };

@@ -635,3 +635,33 @@ body.has-painting::before { opacity: .22; }
 .link-btn.inline.hidden { display: none; }
 
 .music-src { font-size: .72rem; color: #6b5a44; margin: 4px 0 0; line-height: 1.45; }
+
+
+/* =============== Предупрежденіе при открытіи черезъ file:// =============== */
+
+.file-banner {
+  position: relative;
+  margin-bottom: 14px; padding: 14px 44px 14px 18px;
+  border-radius: 4px; color: var(--ink);
+  background: linear-gradient(180deg, #f6e6b8, #e9d49a);
+  border: 2px solid var(--gold-deep);
+  box-shadow: var(--shadow-mid);
+  font-size: .88rem; line-height: 1.5;
+}
+.file-banner.hidden { display: none; }
+.file-banner code {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: .78rem; background: rgba(23,16,11,.1);
+  padding: 2px 6px; border-radius: 3px; word-break: break-all;
+}
+.fb-cmd {
+  display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap;
+}
+.fb-cmd code { flex: 1; min-width: 220px; padding: 8px 10px; }
+.fb-cmd .btn { flex: 0 0 auto; }
+.fb-close {
+  position: absolute; top: 6px; right: 10px;
+  background: none; border: none; cursor: pointer;
+  font-size: 1.4rem; line-height: 1; color: var(--crimson-deep); opacity: .6;
+}
+.fb-close:hover { opacity: 1; }

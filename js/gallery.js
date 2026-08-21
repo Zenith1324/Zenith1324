@@ -48,6 +48,7 @@ const Gallery = (function () {
 
   function fetchJson(url, timeoutMs) {
     return new Promise((resolve, reject) => {
+      if (location.protocol === 'file:') { reject(new Error('file://')); return; }
       const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
       const timer = setTimeout(() => { if (ctrl) ctrl.abort(); reject(new Error('таймаутъ')); }, timeoutMs || 9000);
       fetch(url, ctrl ? { signal: ctrl.signal } : undefined)

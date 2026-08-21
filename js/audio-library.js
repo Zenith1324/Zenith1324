@@ -50,6 +50,7 @@ const Maestro = (function () {
 
   function fetchJson(url, timeoutMs) {
     return new Promise((resolve, reject) => {
+      if (location.protocol === 'file:') { reject(new Error('file://')); return; }
       const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
       const timer = setTimeout(() => { if (ctrl) ctrl.abort(); reject(new Error('таймаутъ')); }, timeoutMs || 9000);
       fetch(url, ctrl ? { signal: ctrl.signal } : undefined)
@@ -61,6 +62,8 @@ const Maestro = (function () {
 
   /** Есть ли рядомъ файлъ? Проверяемъ HEAD-запросомъ. */
   function probeFile(url) {
+    // Черезъ file:// fetch запрещёнъ политикой источника — не пробуемъ вовсе
+    if (location.protocol === 'file:') return Promise.resolve(false);
     return new Promise((resolve) => {
       const timer = setTimeout(() => resolve(false), 4000);
       fetch(url, { method: 'HEAD' })

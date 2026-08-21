@@ -1017,6 +1017,42 @@
 
   // ============================ ЗАПУСКЪ ============================
 
+  // ---------- Подсказка при открытіи черезъ file:// ----------
+
+  /**
+   * Собираетъ команду для Терминала: переходъ въ папку приложенія и запускъ
+   * мѣстнаго сервера. Путь берёмъ изъ адреса страницы, чтобы команду можно
+   * было просто скопировать, гдѣ бы папка ни лежала.
+   */
+  function serverCommand() {
+    let dir = '~/Desktop';
+    try {
+      const path = decodeURIComponent(location.pathname);
+      const folder = path.replace(/\/[^/]*$/, '');       // отбрасываемъ index.html
+      if (folder) dir = folder.replace(/'/g, "'\\''");
+    } catch (e) { /* оставляемъ значеніе по умолчанію */ }
+    return `cd '${dir}' && python3 -m http.server 8173`;
+  }
+
+  function showFileModeBanner() {
+    const banner = $('file-mode-banner');
+    const cmd = serverCommand();
+    $('fb-command').textContent = cmd;
+    banner.classList.remove('hidden');
+    $('fb-copy').onclick = () => {
+      const done = () => { $('fb-copy').textContent = 'Скопировано ✓'; };
+      if (navigator.clipboard) navigator.clipboard.writeText(cmd).then(done, fallback);
+      else fallback();
+      function fallback() {
+        const ta = document.createElement('textarea');
+        ta.value = cmd; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); done(); } catch (e) { /* скопируютъ руками */ }
+        ta.remove();
+      }
+    };
+    $('fb-close').onclick = () => banner.classList.add('hidden');
+  }
+
   // ---------- Полотна Шишкина на заднемъ планѣ ----------
 
   function describePainting(item) {
@@ -1053,9 +1089,8 @@
     if (backend === 'stockfish') {
       engineNoteEl.textContent = 'Движокъ: Stockfish 18';
     } else {
-      engineNoteEl.innerHTML =
-        'Движокъ: встроенный (Stockfish не загруженъ). ' +
-        'Для полной силы откройте приложеніе черезъ мѣстный серверъ — см. файлъ «ЗАПУСК.command».';
+      engineNoteEl.textContent = 'Движокъ: встроенный (Stockfish не загруженъ)';
+      if (location.protocol === 'file:') showFileModeBanner();
     }
     // Первичная оцѣнка позиціи
     try {

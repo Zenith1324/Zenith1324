@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Шахматы — Русские Шахматы</title>
+<meta name="description" content="Играйте в шахматы против компьютера с разными уровнями сложности, оформленные в традиционном русском стиле." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Yeseva+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="page">
+
+  <header class="header">
+    <svg class="dome dome-left" viewBox="0 0 100 140" aria-hidden="true">
+      <use href="#onion-dome"></use>
+    </svg>
+    <div class="title-block">
+      <p class="kicker">ЦАРСКАЯ ИГРА · THE ROYAL GAME</p>
+      <h1 class="title">Шахматы</h1>
+      <p class="subtitle">Традиционные русские шахматы против компьютера</p>
+    </div>
+    <svg class="dome dome-right" viewBox="0 0 100 140" aria-hidden="true">
+      <use href="#onion-dome"></use>
+    </svg>
+  </header>
+
+  <main class="layout">
+
+    <section class="board-frame">
+      <div class="board-ornament-corner corner-tl" aria-hidden="true"></div>
+      <div class="board-ornament-corner corner-tr" aria-hidden="true"></div>
+      <div class="board-ornament-corner corner-bl" aria-hidden="true"></div>
+      <div class="board-ornament-corner corner-br" aria-hidden="true"></div>
+
+      <div class="files-row" id="files-label"></div>
+      <div class="board-middle">
+        <div class="ranks-col" id="ranks-label"></div>
+        <div id="board" class="board"></div>
+      </div>
+
+      <div id="status-bar" class="status-bar">Ход белых · White to move</div>
+      <div id="thinking-indicator" class="thinking-indicator hidden">
+        <span class="thinking-dot"></span> Компьютер думает… · Computer is thinking…
+      </div>
+    </section>
+
+    <aside class="panel">
+
+      <div class="panel-section difficulty-section">
+        <h2>Уровень сложности <span class="en">Difficulty</span></h2>
+        <div class="difficulty-buttons" id="difficulty-buttons">
+          <button data-level="novice">Новичок <span class="en">Novice</span></button>
+          <button data-level="amateur" class="active">Любитель <span class="en">Amateur</span></button>
+          <button data-level="club">Клубный игрок <span class="en">Club</span></button>
+          <button data-level="master">Гроссмейстер <span class="en">Master</span></button>
+        </div>
+      </div>
+
+      <div class="panel-section captured-section">
+        <h2>Взятые фигуры <span class="en">Captured</span></h2>
+        <div class="captured-row-wrap">
+          <span class="captured-label">Белые взяли</span>
+          <div id="captured-black" class="captured-row"></div>
+        </div>
+        <div class="captured-row-wrap">
+          <span class="captured-label">Чёрные взяли</span>
+          <div id="captured-white" class="captured-row"></div>
+        </div>
+      </div>
+
+      <div class="panel-section moves-section">
+        <h2>Партия <span class="en">Moves</span></h2>
+        <ol id="move-list" class="move-list"></ol>
+      </div>
+
+      <div class="panel-section controls-section">
+        <button id="new-game-btn" class="control-btn primary">Новая игра</button>
+        <div class="control-row">
+          <button id="undo-btn" class="control-btn">↶ Назад</button>
+          <button id="flip-btn" class="control-btn">⇅ Перевернуть</button>
+        </div>
+        <div class="control-row">
+          <button id="color-toggle-btn" class="control-btn">Играть за чёрных</button>
+          <button id="sound-toggle-btn" class="control-btn">🔔 Звук</button>
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <p>С любовью к шахматам и русским узорам · Хохлома · Гжель · Палех</p>
+  </footer>
+</div>
+
+<!-- Promotion modal -->
+<div id="promotion-modal" class="modal hidden">
+  <div class="modal-card">
+    <h3>Выберите фигуру · Choose promotion</h3>
+    <div id="promotion-choices" class="promotion-choices"></div>
+  </div>
+</div>
+
+<!-- Game over modal -->
+<div id="game-over-modal" class="modal hidden">
+  <div class="modal-card game-over-card">
+    <div class="modal-ornament" aria-hidden="true"></div>
+    <h3 id="game-over-title">Игра окончена</h3>
+    <p id="game-over-subtitle">Game over</p>
+    <button id="game-over-close" class="control-btn primary">Закрыть · Close</button>
+  </div>
+</div>
+
+<!-- Reusable SVG symbols (onion dome, decorative flourishes) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="onion-dome" viewBox="0 0 100 140">
+      <path d="M50 4 L56 16 L44 16 Z" class="dome-cross-v"/>
+      <path d="M38 20 L62 20" class="dome-cross-h"/>
+      <path d="M50 16 L50 34" class="dome-stem"/>
+      <path d="M28 60 C28 30 72 30 72 60 C82 68 78 86 62 88 L62 130 L38 130 L38 88 C22 86 18 68 28 60 Z" class="dome-body"/>
+      <path d="M30 58 C30 34 70 34 70 58 C64 46 36 46 30 58 Z" class="dome-highlight"/>
+      <rect x="30" y="128" width="40" height="8" rx="1" class="dome-base"/>
+    </symbol>
+  </defs>
+</svg>
+
+<script src="js/chess-engine.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -665,3 +665,47 @@ body.has-painting::before { opacity: .22; }
   font-size: 1.4rem; line-height: 1; color: var(--crimson-deep); opacity: .6;
 }
 .fb-close:hover { opacity: 1; }
+
+/* =============== Свои записи (слоты музыки) =============== */
+
+.music-slots { margin: 10px 0; display: flex; flex-direction: column; gap: 4px; }
+.slot {
+  display: flex; align-items: center; gap: 7px;
+  padding: 5px 8px; border-radius: 3px; font-size: .76rem;
+  background: rgba(27,63,107,.06); border: 1px solid rgba(27,63,107,.14);
+}
+.slot-when { font-weight: 700; color: var(--crimson-deep); flex: 0 0 62px; }
+.slot-title {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; color: #5a4632;
+}
+.slot-src {
+  flex: 0 0 auto; font-size: .64rem; padding: 1px 6px; border-radius: 8px;
+  border: 1px solid transparent;
+}
+.slot-user   { background: rgba(46,125,50,.16);  color: #2e7d32; border-color: rgba(46,125,50,.4); }
+.slot-local  { background: rgba(27,63,107,.14);  color: var(--cobalt); border-color: rgba(27,63,107,.35); }
+.slot-commons{ background: rgba(212,162,76,.24); color: #8a6428; border-color: var(--gold-deep); }
+.slot-synth  { background: rgba(23,16,11,.08);   color: #7b6a52; border-color: rgba(23,16,11,.16); }
+
+.btn-file { display: block; text-align: center; cursor: pointer; }
+
+/* =============== Мастеръ сѣтевой игры =============== */
+
+.net-step.hidden { display: none; }
+.net-roles { display: flex; gap: 8px; margin-top: 10px; }
+.net-roles .btn { flex: 1; }
+
+.step { margin-bottom: 16px; }
+.step:last-of-type { margin-bottom: 8px; }
+.step.hidden { display: none; }
+.step-head {
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 700; color: var(--crimson-deep); font-size: .87rem; margin-bottom: 7px;
+}
+.step-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%; flex: none;
+  background: linear-gradient(160deg, var(--gold-bright), var(--gold));
+  border: 1px solid var(--gold-deep); color: #2a1a08; font-size: .8rem;
+}

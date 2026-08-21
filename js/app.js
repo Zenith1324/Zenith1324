@@ -834,11 +834,14 @@
       mode = 'network';
       humanColor = info.color;
       flipped = humanColor === 'b';
-      setNetStatus(`Соединеніе установлено. Вы играете за ${ruColorGen(humanColor)}.`, 'ok');
+      setNetStatus('Соединеніе установлено.', 'ok');
+      showNetStep('net-live');
+      $('net-live-text').textContent = `Вы играете за ${ruColorGen(humanColor)}. Часы и ходы синхронизируются.`;
       newGame({ color: humanColor });
     },
     onDisconnect: () => {
       setNetStatus('Соединеніе разорвано.', 'err');
+      showNetStep('net-choose');
       if (mode === 'network' && !gameFinished) {
         setStatus('Соперникъ отключился.');
       }
@@ -965,40 +968,95 @@
   const origMoveSound = ScriabinMusic.moveSound;
   ScriabinMusic.moveSound = function (cap) { if (soundOn) origMoveSound(cap); };
   $('volume').oninput = (e) => Maestro.setVolume(e.target.value / 100);
+
+  // Свои записи: выбираемъ файлы и раскладываемъ по случаямъ
+  function renderMusicSlots(slots) {
+    const box = $('music-slots');
+    const SRC = { user: 'ваша запись', local: 'файлъ въ папкѣ',
+                  commons: 'Викискладъ', synth: 'синтезаторъ' };
+    box.innerHTML = (slots || Maestro.describeSlots()).map((s) => `
+      <div class="slot">
+        <span class="slot-when">${s.label}</span>
+        <span class="slot-title" title="${s.title}">${s.title}</span>
+        <span class="slot-src slot-${s.source}">${SRC[s.source] || s.source}</span>
+      </div>`).join('');
+  }
+  Maestro.setSlotsHandler(renderMusicSlots);
+
+  $('music-files').onchange = async (e) => {
+    const res = await Maestro.importFiles(e.target.files);
+    renderMusicSlots(res.slots);
+    e.target.value = '';
+  };
+  $('music-clear').onclick = async () => {
+    if (!window.confirm('Убрать свои записи и вернуться къ прежнему источнику?')) return;
+    await Maestro.clearUserFiles();
+    renderMusicSlots();
+  };
   document.addEventListener('pointerdown', () => ScriabinMusic.unlock(), { once: true });
 
-  // --- Сеть ---
-  $('btn-create-invite').onclick = async () => {
+  // --- Сѣть: пошаговый мастеръ ---
+
+  function showNetStep(id) {
+    ['net-choose', 'net-host', 'net-guest', 'net-live'].forEach((step) => {
+      $(step).classList.toggle('hidden', step !== id);
+    });
+  }
+
+  $('role-host').onclick = async () => {
     if (!Multiplayer.isSupported()) { setNetStatus('Браузеръ не поддерживаетъ WebRTC.', 'err'); return; }
-    setNetStatus('Создаёмъ приглашеніе…', 'wait');
+    showNetStep('net-host');
+    $('invite-code').value = '';
+    setNetStatus('Готовимъ приглашеніе…', 'wait');
     try {
       const code = await Multiplayer.createInvite(colorChoice);
       $('invite-code').value = code;
-      setNetStatus('Приглашеніе готово. Отправьте кодъ сопернику и ждите код отвѣта.', 'wait');
-    } catch (e) { setNetStatus('Не удалось создать приглашеніе: ' + e.message, 'err'); }
+      setNetStatus('Кодъ готовъ. Отправьте его другу и ждите отвѣта.', 'wait');
+    } catch (e) {
+      setNetStatus('Не удалось создать приглашеніе: ' + e.message, 'err');
+    }
   };
+
+  $('role-guest').onclick = () => {
+    if (!Multiplayer.isSupported()) { setNetStatus('Браузеръ не поддерживаетъ WebRTC.', 'err'); return; }
+    showNetStep('net-guest');
+    $('guest-step-2').classList.add('hidden');
+    $('invite-in').value = '';
+    setNetStatus('Вставьте кодъ приглашенія.', '');
+  };
+
+  document.querySelectorAll('.net-back').forEach((b) => {
+    b.onclick = () => { Multiplayer.close(); showNetStep('net-choose'); setNetStatus('Не подключено', ''); };
+  });
+
   $('btn-accept-answer').onclick = async () => {
     const code = $('answer-in').value.trim();
     if (!code) { setNetStatus('Вставьте кодъ отвѣта.', 'err'); return; }
-    setNetStatus('Устанавливаемъ соединеніе…', 'wait');
+    setNetStatus('Соединяемся…', 'wait');
     try { await Multiplayer.completeInvite(code); }
     catch (e) { setNetStatus('Невѣрный кодъ отвѣта: ' + e.message, 'err'); }
   };
+
   $('btn-join').onclick = async () => {
     const code = $('invite-in').value.trim();
     if (!code) { setNetStatus('Вставьте кодъ приглашенія.', 'err'); return; }
-    setNetStatus('Входимъ въ партію…', 'wait');
+    setNetStatus('Читаемъ приглашеніе…', 'wait');
     try {
       const res = await Multiplayer.acceptInvite(code);
       $('answer-code').value = res.code;
-      setNetStatus('Кодъ отвѣта готовъ. Отправьте его хозяину партіи.', 'wait');
-    } catch (e) { setNetStatus('Невѣрный кодъ приглашенія: ' + e.message, 'err'); }
+      $('guest-step-2').classList.remove('hidden');
+      setNetStatus('Отправьте кодъ отвѣта хозяину и ждите.', 'wait');
+    } catch (e) {
+      setNetStatus('Невѣрный кодъ приглашенія: ' + e.message, 'err');
+    }
   };
+
   $('btn-copy-invite').onclick = () => copyToClipboard($('invite-code').value, 'приглашенія');
   $('btn-copy-answer').onclick = () => copyToClipboard($('answer-code').value, 'отвѣта');
   $('btn-disconnect').onclick = () => {
     Multiplayer.close();
     mode = 'engine';
+    showNetStep('net-choose');
     setNetStatus('Отключено.', '');
   };
 
@@ -1077,13 +1135,7 @@
 
     // Полотна и фонотека грузятся въ фонѣ и не задерживаютъ игру
     Gallery.init(describePainting).catch(() => {});
-    Maestro.init().then(() => {
-      const src = Maestro.sourceLabel();
-      $('music-src').textContent = 'Источникъ звука: ' + src +
-        (Maestro.getSource() === 'synth'
-          ? ' — чтобы играли настоящія записи, запустите «МУЗЫКА.command»'
-          : '');
-    }).catch(() => {});
+    Maestro.init().then(() => renderMusicSlots()).catch(() => renderMusicSlots());
 
     const backend = await EngineManager.init();
     if (backend === 'stockfish') {

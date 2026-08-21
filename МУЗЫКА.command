@@ -18,16 +18,24 @@ OUT = 'assets/audio'
 
 # Что ищем для каждого случая. Первый список — точные слова,
 # второй — запасной, если точных совпадений нет.
+# Фамилия композитора обязательна — иначе не берём файл вообще.
+COMPOSER = ['scriabin', 'skriabin', 'skryabin', 'scriabine', 'skrjabin',
+            'skrjabine', 'скрябин']
+
 WANTED = [
-    ('victory', 'Поэма экстаза (победа)',
-     ['poem of ecstasy', "poeme de l'extase", 'poème de l’extase', 'extase', 'ecstasy', 'op. 54', 'op 54'],
-     ['symphony', 'symphonie', 'orchestra', 'orchestre']),
-    ('defeat', 'Этюд соч. 8 № 12 (поражение)',
-     ['op. 8', 'op 8', 'etude', 'étude', 'patetico', 'pathetique'],
-     ['prelude', 'piano sonata', 'sonata']),
-    ('draw', 'Прелюдия соч. 11 (ничья)',
-     ['op. 11', 'op 11', 'prelude', 'prélude'],
-     ['piano']),
+    ('victory', 'ПОБЕДА — Симфония № 3, ч. III / «Поэма экстаза»',
+     ['divine poem', 'divin poeme', 'божественная поэма', 'jeu divin',
+      'symphony no. 3', 'symphony no 3', 'symphony 3', 'symphonie no 3',
+      'op. 43', 'op 43'],
+     ['poem of ecstasy', "poeme de l'extase", 'poème de l’extase', 'extase',
+      'ecstasy', 'op. 54', 'op 54', 'поэма экстаза']),
+    ('defeat', 'ПОРАЖЕНИЕ — Симфония № 3, ч. I «Борьба» / Этюд соч. 8 № 12',
+     ['luttes', 'struggles', 'борьба', 'symphony no. 3', 'symphony no 3',
+      'op. 43', 'op 43'],
+     ['op. 8', 'op 8', 'etude', 'étude', 'patetico', 'pathetique', 'этюд']),
+    ('draw', 'НИЧЬЯ — Прелюдия соч. 11 / «Мечты» соч. 24',
+     ['op. 11', 'op 11', 'prelude', 'prélude', 'прелюдия'],
+     ['reverie', 'rêverie', 'мечты', 'op. 24', 'op 24']),
 ]
 
 def get_json(url, timeout=25):
@@ -84,10 +92,15 @@ def archive_files():
                         'size': size, 'where': 'archive.org'})
     return out
 
+def by_scriabin(files):
+    """Только то, где в названии действительно стоит фамилия Скрябина."""
+    return [f for f in files if any(c in f['title'].lower() for c in COMPOSER)]
+
+
 def pick(files, words):
     hits = [f for f in files if any(w in f['title'].lower() for w in words)]
     # предпочитаем файл среднего размера: не обрывок и не часовой концерт
-    hits.sort(key=lambda f: abs((f['size'] or 4_000_000) - 6_000_000))
+    hits.sort(key=lambda f: abs((f['size'] or 4000000) - 6000000))
     return hits[0] if hits else None
 
 def download(url, path):
@@ -120,6 +133,13 @@ if not pool:
     print('Ничего не нашлось. Проверьте подключение к интернету.')
     print('Можно положить свои файлы вручную:')
     print('   assets/audio/victory.mp3, defeat.mp3, draw.mp3')
+    raise SystemExit(1)
+
+pool = by_scriabin(pool)
+print('Из них действительно Скрябин: %d\n' % len(pool))
+if not pool:
+    print('Записей Скрябина не нашлось. Лучше добавить свои файлы прямо в игре:')
+    print('  «Музыка и звукъ» → «Выбрать свои записи…»')
     raise SystemExit(1)
 
 ok = 0

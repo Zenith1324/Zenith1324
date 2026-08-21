@@ -163,8 +163,20 @@
             <span>Громкость</span>
             <input type="range" id="volume" min="0" max="100" value="50">
           </label>
+
+          <div class="music-slots" id="music-slots"></div>
+
+          <label for="music-files" class="btn btn-gold btn-file">Выбрать свои записи…</label>
+          <input type="file" id="music-files" accept="audio/*" multiple hidden>
+          <p class="hint">
+            Возьмите свои записи Скрябина — напримѣръ Симфонію № 3, ч. III,
+            или «Поэму экстаза». Первый файлъ идётъ на побѣду, второй на
+            пораженіе, третій на ничью; можно назвать файлы
+            <code>victory</code>, <code>defeat</code>, <code>draw</code>.
+            Записи хранятся въ браузерѣ и переживаютъ перезапускъ.
+          </p>
+          <button id="music-clear" class="link-btn">убрать свои записи</button>
           <p class="music-now" id="music-now"></p>
-          <p class="music-src" id="music-src"></p>
         </div>
       </div>
 
@@ -201,43 +213,76 @@
 
       <!-- ---------- Вкладка: По сети ---------- -->
       <div class="tab-panel" id="tab-network">
+
         <div class="section">
-          <p class="hint">
-            Играйте съ живымъ человѣкомъ напрямую — безъ сервера.
-            Обмѣняйтесь кодами любымъ способомъ: въ мессенджерѣ, почтой, голосомъ.
-          </p>
           <div class="net-status" id="net-status">Не подключено</div>
         </div>
 
-        <div class="section">
-          <h2>Пригласить</h2>
-          <div class="btn-row">
-            <button id="btn-create-invite" class="btn btn-gold">Создать партію</button>
-          </div>
-          <label class="net-label">Кодъ приглашенія — отправьте сопернику:</label>
-          <textarea id="invite-code" class="code-box" readonly placeholder="нажмите «Создать партію»"></textarea>
-          <div class="btn-row">
-            <button id="btn-copy-invite" class="btn btn-small">Скопировать</button>
-          </div>
-          <label class="net-label">Кодъ отвѣта отъ соперника — вставьте сюда:</label>
-          <textarea id="answer-in" class="code-box" placeholder="вставьте кодъ отвѣта"></textarea>
-          <div class="btn-row">
-            <button id="btn-accept-answer" class="btn btn-small">Завершить соединеніе</button>
+        <!-- Шагъ 0: кто вы въ этой партіи -->
+        <div class="section net-step" id="net-choose">
+          <h2>Игра съ живымъ соперникомъ</h2>
+          <p class="hint">
+            Соединеніе идётъ напрямую между браузерами — сервера нѣтъ.
+            Вы обмѣняетесь двумя короткими кодами: одинъ туда, одинъ обратно.
+          </p>
+          <div class="net-roles">
+            <button id="role-host" class="btn btn-gold">Я приглашаю</button>
+            <button id="role-guest" class="btn">Меня пригласили</button>
           </div>
         </div>
 
-        <div class="section">
-          <h2>Присоединиться</h2>
-          <label class="net-label">Кодъ приглашенія отъ хозяина:</label>
-          <textarea id="invite-in" class="code-box" placeholder="вставьте кодъ приглашенія"></textarea>
-          <div class="btn-row">
-            <button id="btn-join" class="btn btn-gold">Войти въ партію</button>
+        <!-- Хозяинъ -->
+        <div class="section net-step hidden" id="net-host">
+          <h2>Вы приглашаете</h2>
+
+          <div class="step" id="host-step-1">
+            <div class="step-head"><span class="step-num">1</span> Отправьте другу этотъ кодъ</div>
+            <textarea id="invite-code" class="code-box" readonly placeholder="сейчасъ появится…"></textarea>
+            <div class="btn-row">
+              <button id="btn-copy-invite" class="btn btn-small">Скопировать кодъ</button>
+            </div>
           </div>
-          <label class="net-label">Вашъ код отвѣта — отправьте хозяину:</label>
-          <textarea id="answer-code" class="code-box" readonly placeholder="появится послѣ входа"></textarea>
+
+          <div class="step" id="host-step-2">
+            <div class="step-head"><span class="step-num">2</span> Вставьте кодъ, который онъ пришлётъ въ отвѣтъ</div>
+            <textarea id="answer-in" class="code-box" placeholder="вставьте кодъ отвѣта сюда"></textarea>
+            <div class="btn-row">
+              <button id="btn-accept-answer" class="btn btn-gold">Соединиться</button>
+            </div>
+          </div>
+
+          <button class="link-btn net-back">← назадъ</button>
+        </div>
+
+        <!-- Гость -->
+        <div class="section net-step hidden" id="net-guest">
+          <h2>Васъ пригласили</h2>
+
+          <div class="step" id="guest-step-1">
+            <div class="step-head"><span class="step-num">1</span> Вставьте кодъ приглашенія</div>
+            <textarea id="invite-in" class="code-box" placeholder="вставьте кодъ приглашенія сюда"></textarea>
+            <div class="btn-row">
+              <button id="btn-join" class="btn btn-gold">Продолжить</button>
+            </div>
+          </div>
+
+          <div class="step hidden" id="guest-step-2">
+            <div class="step-head"><span class="step-num">2</span> Отправьте этотъ кодъ обратно — и ждите</div>
+            <textarea id="answer-code" class="code-box" readonly></textarea>
+            <div class="btn-row">
+              <button id="btn-copy-answer" class="btn btn-small">Скопировать кодъ</button>
+            </div>
+          </div>
+
+          <button class="link-btn net-back">← назадъ</button>
+        </div>
+
+        <!-- Соединено -->
+        <div class="section net-step hidden" id="net-live">
+          <h2>Партія по сѣти</h2>
+          <p id="net-live-text"></p>
           <div class="btn-row">
-            <button id="btn-copy-answer" class="btn btn-small">Скопировать</button>
-            <button id="btn-disconnect" class="btn btn-small">Отключиться</button>
+            <button id="btn-disconnect" class="btn">Отключиться</button>
           </div>
         </div>
       </div>

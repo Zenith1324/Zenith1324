@@ -300,14 +300,43 @@ function positionKey(state) {
   return `${b}|${state.turn}|${c.wK ? 1 : 0}${c.wQ ? 1 : 0}${c.bK ? 1 : 0}${c.bQ ? 1 : 0}|${ep}`;
 }
 
+/**
+ * Filter pseudo-legal moves down to legal ones.
+ * Uses in-place make/unmake on the board array (no state cloning) — legality
+ * only depends on whether the mover's own king ends up attacked, and castling
+ * path safety is already validated during pseudo-move generation.
+ */
 function generateLegalMoves(state, color) {
   const pseudo = generatePseudoMoves(state, color);
+  const board = state.board;
   const legal = [];
+
   for (const move of pseudo) {
-    const next = applyMove(state, move);
-    if (!isInCheck(next, color)) {
-      legal.push(move);
+    const [fr, fc] = move.from;
+    const [tr, tc] = move.to;
+    const moved = board[fr][fc];
+    const captured = board[tr][tc];
+
+    // Make
+    board[fr][fc] = null;
+    board[tr][tc] = move.promotion ? color + move.promotion : moved;
+    let epCapturedSquare = null;
+    let epCapturedPiece = null;
+    if (move.isEnPassant) {
+      epCapturedSquare = [fr, tc];
+      epCapturedPiece = board[fr][tc];
+      board[fr][tc] = null;
     }
+
+    const kingPos = moved[1] === 'k' ? [tr, tc] : findKing(board, color);
+    const safe = kingPos ? !isSquareAttacked(board, kingPos[0], kingPos[1], opponent(color)) : true;
+
+    // Unmake
+    board[fr][fc] = moved;
+    board[tr][tc] = captured;
+    if (epCapturedSquare) board[epCapturedSquare[0]][epCapturedSquare[1]] = epCapturedPiece;
+
+    if (safe) legal.push(move);
   }
   return legal;
 }
@@ -359,6 +388,68 @@ function getGameStatus(state) {
   return { over: false, inCheck, legalMoves };
 }
 
+// ---------- FEN / UCI interop (for talking to Stockfish) ----------
+
+const FEN_PIECE = { p: 'p', n: 'n', b: 'b', r: 'r', q: 'q', k: 'k' };
+
+function toFEN(state) {
+  const rows = [];
+  for (let r = 0; r < 8; r++) {
+    let row = '';
+    let empty = 0;
+    for (let c = 0; c < 8; c++) {
+      const p = state.board[r][c];
+      if (!p) { empty++; continue; }
+      if (empty) { row += empty; empty = 0; }
+      const letter = FEN_PIECE[p[1]];
+      row += p[0] === 'w' ? letter.toUpperCase() : letter;
+    }
+    if (empty) row += empty;
+    rows.push(row);
+  }
+  const placement = rows.join('/');
+
+  let castle = '';
+  if (state.castling.wK) castle += 'K';
+  if (state.castling.wQ) castle += 'Q';
+  if (state.castling.bK) castle += 'k';
+  if (state.castling.bQ) castle += 'q';
+  if (!castle) castle = '-';
+
+  const ep = state.epSquare ? squareName(state.epSquare[0], state.epSquare[1]) : '-';
+  return `${placement} ${state.turn} ${castle} ${ep} ${state.halfmove} ${state.fullmove}`;
+}
+
+function moveToUci(move) {
+  return squareName(move.from[0], move.from[1]) +
+    squareName(move.to[0], move.to[1]) +
+    (move.promotion || '');
+}
+
+function parseSquare(name) {
+  return [8 - parseInt(name[1], 10), name.charCodeAt(0) - 97];
+}
+
+/** Find the legal move object matching a UCI string like "e2e4" or "e7e8q". */
+function uciToMove(state, uci) {
+  if (!uci || uci.length < 4) return null;
+  const from = parseSquare(uci.slice(0, 2));
+  const to = parseSquare(uci.slice(2, 4));
+  const promotion = uci.length > 4 ? uci[4].toLowerCase() : null;
+  const legal = generateLegalMoves(state, state.turn);
+  return legal.find((m) =>
+    m.from[0] === from[0] && m.from[1] === from[1] &&
+    m.to[0] === to[0] && m.to[1] === to[1] &&
+    (m.promotion || null) === promotion) || null;
+}
+
+function sameMove(a, b) {
+  if (!a || !b) return false;
+  return a.from[0] === b.from[0] && a.from[1] === b.from[1] &&
+    a.to[0] === b.to[0] && a.to[1] === b.to[1] &&
+    (a.promotion || null) === (b.promotion || null);
+}
+
 // Exported API
 const ChessEngine = {
   createInitialState,
@@ -369,5 +460,11 @@ const ChessEngine = {
   isSquareAttacked,
   getGameStatus,
   squareName,
+  parseSquare,
   opponent,
+  toFEN,
+  moveToUci,
+  uciToMove,
+  sameMove,
+  positionKey,
 };

@@ -1,0 +1,174 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" width="1600" height="1000">
+  <title>Сосновый бор — в духе И. И. Шишкина</title>
+  <desc>Оригинальная иллюстрация в манере русской пейзажной живописи XIX века (И. И. Шишкин, «Корабельная роща», «Утро в сосновом лесу»).</desc>
+
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#e8dcae"/>
+      <stop offset="28%"  stop-color="#d9cf9c"/>
+      <stop offset="58%"  stop-color="#a8ab72"/>
+      <stop offset="100%" stop-color="#5f6440"/>
+    </linearGradient>
+
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#6d6a3c"/>
+      <stop offset="45%"  stop-color="#4f4a28"/>
+      <stop offset="100%" stop-color="#2e2a15"/>
+    </linearGradient>
+
+    <linearGradient id="trunkNear" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#241608"/>
+      <stop offset="30%"  stop-color="#5e3a1c"/>
+      <stop offset="55%"  stop-color="#8a5a2b"/>
+      <stop offset="78%"  stop-color="#5a3718"/>
+      <stop offset="100%" stop-color="#1d1206"/>
+    </linearGradient>
+
+    <linearGradient id="trunkMid" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#3b2a16"/>
+      <stop offset="45%"  stop-color="#6d4a26"/>
+      <stop offset="100%" stop-color="#2c1f10"/>
+    </linearGradient>
+
+    <radialGradient id="glow" cx="0.62" cy="0.18" r="0.62">
+      <stop offset="0%"   stop-color="#fff3c4" stop-opacity="0.92"/>
+      <stop offset="42%"  stop-color="#f0df9c" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#e8dcae" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="beam" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%"   stop-color="#fff6d0" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#fff6d0" stop-opacity="0"/>
+    </linearGradient>
+
+    <filter id="paint" x="-12%" y="-12%" width="124%" height="124%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="4" seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="9" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+
+    <filter id="softPaint" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" seed="19" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G"/>
+      <feGaussianBlur stdDeviation="1.1"/>
+    </filter>
+
+    <filter id="haze" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+
+    <filter id="canvasGrain" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="3" result="g"/>
+      <feColorMatrix in="g" type="saturate" values="0"/>
+    </filter>
+
+    <!-- Крона сосны: несколько «облаков» хвои -->
+    <symbol id="pineCrown" viewBox="0 0 200 200">
+      <g fill="currentColor">
+        <ellipse cx="100" cy="70"  rx="76" ry="34"/>
+        <ellipse cx="62"  cy="98"  rx="52" ry="26"/>
+        <ellipse cx="142" cy="100" rx="50" ry="25"/>
+        <ellipse cx="100" cy="126" rx="66" ry="28"/>
+        <ellipse cx="100" cy="40"  rx="44" ry="22"/>
+      </g>
+    </symbol>
+  </defs>
+
+  <!-- Небо и глубина леса -->
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+  <rect width="1600" height="1000" fill="url(#glow)"/>
+
+  <!-- Дальний план: размытые силуэты деревьев в утренней дымке -->
+  <g filter="haze" opacity="0.5" color="#8d9668">
+    <g filter="url(#haze)">
+      <use href="#pineCrown" x="40"   y="240" width="260" height="260"/>
+      <use href="#pineCrown" x="250"  y="200" width="300" height="300"/>
+      <use href="#pineCrown" x="520"  y="250" width="240" height="240"/>
+      <use href="#pineCrown" x="760"  y="190" width="290" height="290"/>
+      <use href="#pineCrown" x="1030" y="240" width="260" height="260"/>
+      <use href="#pineCrown" x="1290" y="205" width="290" height="290"/>
+      <g fill="#8d9668">
+        <rect x="150" y="430" width="16" height="200"/>
+        <rect x="390" y="420" width="18" height="220"/>
+        <rect x="630" y="440" width="15" height="190"/>
+        <rect x="890" y="415" width="19" height="225"/>
+        <rect x="1150" y="435" width="16" height="200"/>
+        <rect x="1420" y="420" width="18" height="215"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- Средний план: сосны потемнее -->
+  <g opacity="0.82" filter="url(#softPaint)">
+    <g color="#5d6b3c">
+      <use href="#pineCrown" x="-20" y="150" width="330" height="330"/>
+      <use href="#pineCrown" x="300" y="120" width="360" height="360"/>
+      <use href="#pineCrown" x="700" y="140" width="340" height="340"/>
+      <use href="#pineCrown" x="1080" y="110" width="370" height="370"/>
+      <use href="#pineCrown" x="1380" y="160" width="320" height="320"/>
+    </g>
+    <g fill="url(#trunkMid)">
+      <rect x="120" y="400" width="26" height="290"/>
+      <rect x="452" y="380" width="30" height="315"/>
+      <rect x="848" y="395" width="27" height="300"/>
+      <rect x="1240" y="370" width="32" height="325"/>
+      <rect x="1522" y="405" width="26" height="290"/>
+    </g>
+  </g>
+
+  <!-- Солнечные лучи сквозь кроны -->
+  <g opacity="0.42">
+    <polygon points="900,0 1010,0 700,1000 540,1000" fill="url(#beam)"/>
+    <polygon points="1130,0 1190,0 980,1000 880,1000" fill="url(#beam)" opacity="0.7"/>
+    <polygon points="640,0 690,0 470,1000 380,1000" fill="url(#beam)" opacity="0.55"/>
+  </g>
+
+  <!-- Лесная подстилка -->
+  <path d="M0 640 Q 200 612 400 634 T 800 626 T 1200 638 T 1600 620 L1600 1000 L0 1000 Z"
+        fill="url(#ground)" filter="url(#softPaint)"/>
+
+  <!-- Мох и травяные пятна -->
+  <g opacity="0.5" filter="url(#softPaint)">
+    <ellipse cx="220"  cy="740" rx="180" ry="42" fill="#6f7a3a"/>
+    <ellipse cx="700"  cy="790" rx="230" ry="48" fill="#5d6a30"/>
+    <ellipse cx="1220" cy="750" rx="200" ry="44" fill="#6b7638"/>
+    <ellipse cx="1480" cy="860" rx="190" ry="46" fill="#54602a"/>
+    <ellipse cx="420"  cy="900" rx="240" ry="52" fill="#4c5626"/>
+  </g>
+
+  <!-- Передний план: могучие корабельные сосны -->
+  <g filter="url(#paint)">
+    <!-- Левая сосна -->
+    <path d="M96 1000 L104 470 Q112 300 128 150 L176 150 Q186 320 190 470 L198 1000 Z" fill="url(#trunkNear)"/>
+    <g stroke="#2a1a0b" stroke-width="2.5" opacity="0.5" fill="none">
+      <path d="M120 960 Q132 700 138 430 Q142 280 150 160"/>
+      <path d="M150 970 Q158 720 162 450 Q166 300 170 165"/>
+      <path d="M134 940 Q142 690 146 440"/>
+    </g>
+    <!-- Ветви -->
+    <path d="M128 330 Q 60 300 20 250" stroke="#4a2e15" stroke-width="13" fill="none" stroke-linecap="round"/>
+    <path d="M186 300 Q 250 268 300 226" stroke="#4a2e15" stroke-width="11" fill="none" stroke-linecap="round"/>
+
+    <!-- Правая сосна -->
+    <path d="M1404 1000 L1414 460 Q1420 300 1436 140 L1490 140 Q1502 310 1506 460 L1516 1000 Z" fill="url(#trunkNear)"/>
+    <g stroke="#2a1a0b" stroke-width="2.5" opacity="0.5" fill="none">
+      <path d="M1430 960 Q1440 700 1446 420 Q1450 270 1456 150"/>
+      <path d="M1466 970 Q1474 720 1478 440 Q1482 290 1486 155"/>
+    </g>
+    <path d="M1436 320 Q 1370 286 1320 240" stroke="#4a2e15" stroke-width="12" fill="none" stroke-linecap="round"/>
+    <path d="M1500 290 Q 1560 258 1600 220" stroke="#4a2e15" stroke-width="10" fill="none" stroke-linecap="round"/>
+
+    <!-- Средняя сосна, чуть дальше -->
+    <path d="M792 1000 L798 520 Q804 380 816 250 L852 250 Q862 390 866 520 L872 1000 Z" fill="url(#trunkMid)" opacity="0.9"/>
+  </g>
+
+  <!-- Кроны переднего плана -->
+  <g color="#3f4a25" opacity="0.95" filter="url(#softPaint)">
+    <use href="#pineCrown" x="-90"  y="-60" width="420" height="420"/>
+    <use href="#pineCrown" x="1280" y="-80" width="440" height="440"/>
+    <use href="#pineCrown" x="640"  y="30"  width="380" height="380"/>
+  </g>
+
+  <!-- Тёплая световая вуаль и «холст» -->
+  <rect width="1600" height="1000" fill="#f4d98a" opacity="0.1"/>
+  <rect width="1600" height="1000" filter="url(#canvasGrain)" opacity="0.11"/>
+</svg>
